@@ -1,5 +1,7 @@
 package gwt.material.design.addins.client.calendar;
 
+import com.google.gwt.core.client.GWT;
+
 /*
  * #%L
  * GwtMaterial
@@ -22,12 +24,12 @@ package gwt.material.design.addins.client.calendar;
 
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.editor.client.SimpleBeanEditorDriver;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import gwt.material.design.addins.client.MaterialAddins;
-import gwt.material.design.addins.client.calendar.event.CalendarEventClickedEvent;
 import gwt.material.design.addins.client.dnd.events.DragEndEvent;
 import gwt.material.design.addins.client.dnd.events.DragStartEvent;
 import gwt.material.design.addins.client.fileuploader.base.HasFileUpload;
@@ -38,6 +40,7 @@ import gwt.material.design.addins.client.fileuploader.events.*;
 import gwt.material.design.client.MaterialDesignBase;
 import gwt.material.design.client.base.MaterialWidget;
 import gwt.material.design.client.constants.Display;
+import gwt.material.design.client.ui.MaterialToast;
 
 import java.util.Date;
 
@@ -67,6 +70,9 @@ public class MaterialCalendar extends MaterialWidget implements HasCalendarEvent
     }
 
     private boolean initialize = false;
+    interface Driver extends SimpleBeanEditorDriver<CalendarEvent, CalendarEventEditor> {}
+
+    private Driver driver = GWT.create(Driver.class);
 
     public MaterialCalendar() {
         super(Document.get().createDivElement(), "fullCalendar");
@@ -135,14 +141,41 @@ public class MaterialCalendar extends MaterialWidget implements HasCalendarEvent
         });
     }-*/;
 
-
     @Override
     public void unoccupiedTimeClickedHandler(String date) {
-        Window.alert("unoccupiedTimeClickedHandler");
+        openEventWindow();
     }
+
+    private void openEventWindow() {
+        edit(new CalendarEvent("New Event"));
+//        CalendarEventEditor e = new CalendarEventEditor();
+//        e.openWindow();
+    }
+
     @Override
     public void occupiedTimeClieckedHandler(String title) {
-        Window.alert("occupiedTimeClieckedHandler");
+        CalendarEvent event = new CalendarEvent(title);
+        openEventWindow(event);
+    }
+
+    private void openEventWindow(CalendarEvent event) {
+        edit(event);
+    }
+
+    void edit(CalendarEvent e) {
+        CalendarEventEditor editor = new CalendarEventEditor();
+        driver.initialize(editor);
+        driver.edit(e);
+        editor.openWindow();
+    }
+
+    void save() {
+        CalendarEvent edited = driver.flush();
+        if (driver.hasErrors()) {
+
+            MaterialToast.fireToast("Errors");
+        }
+        MaterialToast.fireToast("OK. No Errors");
     }
 
     public boolean isInitialize() {

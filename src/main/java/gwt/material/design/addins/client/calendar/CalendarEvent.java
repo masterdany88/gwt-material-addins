@@ -28,29 +28,32 @@ public class CalendarEvent implements Serializable {
     private String title;
     private String description;
     private boolean allDay;
-    private Date start;
-    private Date end;
+    private Date startDate, endDate;
+    private Date startTime, endTime;
+    
+    
+    public CalendarEvent(String title) {
+        this.title = title;
+    }
 
-    public CalendarEvent(Long id, String title, Date start, Date end) {
+    public CalendarEvent(Long id, String title, Date startDate, Date endDate) {
         super();
         this.id = id;
         this.title = title;
-        this.start = start;
-        this.end = end;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
-    public CalendarEvent(Long id, String title, String description, Date start, Date end, boolean allDay) {
+
+    public CalendarEvent(Long id, String title, String description, Date startDate, Date endDate, boolean allDay) {
         super();
         this.id = id;
         this.title = title;
         this.description = description;
-        this.start = start;
-        this.end = end;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.allDay = allDay;
     }
 
-    public CalendarEvent(String title) {
-        this.title = title;
-    }
     public Long getId() {
         return id;
     }
@@ -83,20 +86,38 @@ public class CalendarEvent implements Serializable {
         this.allDay = allDay;
     }
 
-    public Date getStart() {
-        return start;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setStart(Date start) {
-        this.start = start;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
-    public Date getEnd() {
-        return end;
+    public Date getEndDate() {
+        return endDate;
     }
 
-    public void setEnd(Date end) {
-        this.end = end;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
+
 
 }
