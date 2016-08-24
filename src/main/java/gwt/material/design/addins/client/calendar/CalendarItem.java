@@ -23,37 +23,29 @@ package gwt.material.design.addins.client.calendar;
 import java.io.Serializable;
 import java.util.Date;
 
-public class CalendarEvent implements Serializable {
+public class CalendarItem implements Serializable {
     private Long id;
     private String title;
     private String description;
     private boolean allDay;
     private Date startDate, endDate;
     private Date startTime, endTime;
-    
-    
-    public CalendarEvent(String title) {
-        this.title = title;
+
+    public CalendarItem(Date startDate) {
+        this.startDate = startDate;
     }
 
-    public CalendarEvent(Long id, String title, Date startDate, Date endDate) {
+    public CalendarItem(Long id, String title, boolean allDay, Date startDate, Date endDate) {
         super();
         this.id = id;
         this.title = title;
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
-    public CalendarEvent(Long id, String title, String description, Date startDate, Date endDate, boolean allDay) {
-        super();
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.allDay = allDay;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
+    
+    
     public Long getId() {
         return id;
     }
@@ -118,6 +110,11 @@ public class CalendarEvent implements Serializable {
         this.endTime = endTime;
     }
 
-
+    @Override
+    public String toString() {
+        return "CalendarItem [id=" + id + ", title=" + title + ", description=" + description + ", allDay=" + allDay
+                + ", startDate=" + startDate + ", endDate=" + endDate + ", startTime=" + startTime + ", endTime="
+                + endTime + "]";
+    }
 
 }

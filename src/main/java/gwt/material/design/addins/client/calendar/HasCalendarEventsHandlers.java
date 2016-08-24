@@ -1,5 +1,7 @@
 package gwt.material.design.addins.client.calendar;
 
+import java.util.Date;
+
 /*
  * #%L
  * GwtMaterial
@@ -23,7 +25,8 @@ package gwt.material.design.addins.client.calendar;
 import com.google.gwt.event.shared.HasHandlers;
 
 
-public interface HasCalendarEventsHandlers<T> extends HasHandlers{
-    void occupiedTimeClieckedHandler(String title);
-    void unoccupiedTimeClickedHandler(String date);
+public interface HasCalendarEventsHandlers<T> extends HasHandlers {
+    void newItemClickedHandler(String title);
+    void editTtemClickedHandler(int id, String title, boolean allDay, Date start, Date end);
+    
 }

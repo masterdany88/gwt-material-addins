@@ -26,10 +26,15 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.editor.client.SimpleBeanEditorDriver;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
+import com.ibm.icu.text.DateFormat;
+import com.ibm.icu.text.SimpleDateFormat;
+
 import gwt.material.design.addins.client.MaterialAddins;
+import gwt.material.design.addins.client.calendar.ItemSaveEvent.ItemSaveEventHandler;
 import gwt.material.design.addins.client.dnd.events.DragEndEvent;
 import gwt.material.design.addins.client.dnd.events.DragStartEvent;
 import gwt.material.design.addins.client.fileuploader.base.HasFileUpload;
@@ -42,6 +47,7 @@ import gwt.material.design.client.base.MaterialWidget;
 import gwt.material.design.client.constants.Display;
 import gwt.material.design.client.ui.MaterialToast;
 
+import java.text.ParseException;
 import java.util.Date;
 
 //@formatter:off
@@ -53,7 +59,7 @@ import java.util.Date;
  * @author masterdany88
  */
 // @formatter:on
-public class MaterialCalendar extends MaterialWidget implements HasCalendarEventsHandlers<CalendarEvent> {
+public class MaterialCalendar extends MaterialWidget implements HasCalendarEventsHandlers<CalendarItem>, ItemSaveEventHandler {
 
     static {
         if (MaterialAddins.isDebug()) {
@@ -70,9 +76,12 @@ public class MaterialCalendar extends MaterialWidget implements HasCalendarEvent
     }
 
     private boolean initialize = false;
-    interface Driver extends SimpleBeanEditorDriver<CalendarEvent, CalendarEventEditor> {}
+
+    interface Driver extends SimpleBeanEditorDriver<CalendarItem, CalendarItemEditor> {
+    }
 
     private Driver driver = GWT.create(Driver.class);
+    private CalendarItemEditor editor;
 
     public MaterialCalendar() {
         super(Document.get().createDivElement(), "fullCalendar");
@@ -86,6 +95,7 @@ public class MaterialCalendar extends MaterialWidget implements HasCalendarEvent
             initCalendar();
             setInitialize(true);
         }
+
     }
 
     @Override
@@ -95,6 +105,8 @@ public class MaterialCalendar extends MaterialWidget implements HasCalendarEvent
 
     public void initCalendar() {
         initCalendar(getElement());
+        editor = new CalendarItemEditor();
+        editor.addItemSaveEventHandler(this);
     }
 
     private native void initCalendar(Element e) /*-{
@@ -117,10 +129,11 @@ public class MaterialCalendar extends MaterialWidget implements HasCalendarEvent
                 },
                 displayEventTime : true, // Display event time
                 dayClick: function(date, jsEvent, view) {
-                    that.@gwt.material.design.addins.client.calendar.MaterialCalendar::unoccupiedTimeClickedHandler(*)(date.format());
+                    that.@gwt.material.design.addins.client.calendar.MaterialCalendar::newItemClickedHandler(*)(date.format());
                 },
                 eventClick: function(calEvent, jsEvent, view) {
-                    that.@gwt.material.design.addins.client.calendar.MaterialCalendar::occupiedTimeClieckedHandler(*)(calEvent.title);
+                    that.@gwt.material.design.addins.client.calendar.MaterialCalendar::editTtemClickedHandler(*)(calEvent.id, calEvent.title, calEvent.allDay, calEvent.start, calEvent.end);
+                    $('#fullCalendar').fullCalendar('updateEvent', calEvent);
                 },
                 events : [ {
                     title : 'event1',
@@ -142,47 +155,44 @@ public class MaterialCalendar extends MaterialWidget implements HasCalendarEvent
     }-*/;
 
     @Override
-    public void unoccupiedTimeClickedHandler(String date) {
-        openEventWindow();
-    }
-
-    private void openEventWindow() {
-        edit(new CalendarEvent("New Event"));
-//        CalendarEventEditor e = new CalendarEventEditor();
-//        e.openWindow();
+    public void newItemClickedHandler(String stringDate) {
+        Date date = DateTimeFormat.getFormat("yyyy-MM-dd").parse(stringDate);
+        CalendarItem item = new CalendarItem(date);
+        edit(item);
     }
 
     @Override
-    public void occupiedTimeClieckedHandler(String title) {
-        CalendarEvent event = new CalendarEvent(title);
-        openEventWindow(event);
+    public void editTtemClickedHandler(int id, String title, boolean allDay, Date start, Date end) {
+        CalendarItem item = new CalendarItem(Long.valueOf(id), title, allDay, start, end);
+        edit(item);
     }
 
-    private void openEventWindow(CalendarEvent event) {
-        edit(event);
-    }
-
-    void edit(CalendarEvent e) {
-        CalendarEventEditor editor = new CalendarEventEditor();
+    private void edit(CalendarItem e) {
+        GWT.log(e.toString());
+//        editor.startDate.setDate(e.getStartDate());
+//        editor.endDate.setDate(e.getEndDate());
         driver.initialize(editor);
         driver.edit(e);
         editor.openWindow();
     }
 
-    void save() {
-        CalendarEvent edited = driver.flush();
+    @Override
+    public void onItemSave(ItemSaveEvent event) {
+        MaterialToast.fireToast("ontest");
+        CalendarItem edited = driver.flush();
         if (driver.hasErrors()) {
-
             MaterialToast.fireToast("Errors");
         }
         MaterialToast.fireToast("OK. No Errors");
+        GWT.log(edited.toString());
     }
 
-    public boolean isInitialize() {
+    private boolean isInitialize() {
         return initialize;
     }
 
-    public void setInitialize(boolean initialize) {
+    private void setInitialize(boolean initialize) {
         this.initialize = initialize;
     }
+
 }
